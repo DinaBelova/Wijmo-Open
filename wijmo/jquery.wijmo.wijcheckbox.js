@@ -1,7 +1,7 @@
 /*globals jQuery*/
 /*
  *
- * Wijmo Library 1.0.0
+ * Wijmo Library 1.0.1
  * http://wijmo.com/
  *
  * Copyright(c) ComponentOne, LLC.  All rights reserved.
@@ -19,90 +19,98 @@
  *
  *
  */
-"use strict";
 (function ($) {
+	"use strict";
 	var checkboxId = 0;
 	$.widget("wijmo.wijcheckbox", {
 		_csspre: "wijmo-checkbox",
 		_init: function () {
-			var that = this, checkboxElement, label, targetLabel, boxElement, iconElement;
-			if (that.element.is(":checkbox")) {
-				if (!that.element.attr("id")) {
-					that.element.attr("id", that._csspre + checkboxId);
+			var self = this, 
+				ele = self.element,
+				checkboxElement, label, targetLabel, boxElement, iconElement;
+			if (ele.is(":checkbox")) {
+				if (!ele.attr("id")) {
+					ele.attr("id", self._csspre + checkboxId);
 					checkboxId += 1;
 				}
-				if (that.element.parent().is("label")) {
-					checkboxElement = that.element.parent()
-					.wrap("<div class='" + that._csspre + "-inputwrapper'></div>")
+				if (ele.parent().is("label")) {
+					checkboxElement = ele.parent()
+					.wrap("<div class='" + self._csspre + "-inputwrapper'></div>")
 					.parent()
-					.wrap("<div></div>").parent().addClass(that._csspre + " ui-widget");
-					label = that.element.parent();
-					label.attr("for", that.element.attr("id"));
-					checkboxElement.find("." + that._csspre + "-inputwrapper")
-					.append(that.element);
+					.wrap("<div></div>").parent().addClass(self._csspre + " ui-widget");
+					label = ele.parent();
+					label.attr("for", ele.attr("id"));
+					checkboxElement.find("." + self._csspre + "-inputwrapper")
+					.append(ele);
 					checkboxElement.append(label);
 				}
 				else {
-					checkboxElement = that.element
-					.wrap("<div class='" + that._csspre + "-inputwrapper'></div>")
+					checkboxElement = ele
+					.wrap("<div class='" + self._csspre + "-inputwrapper'></div>")
 					.parent().wrap("<div></div>").parent()
-					.addClass(that._csspre + " ui-widget");
+					.addClass(self._csspre + " ui-widget");
 				}
-				targetLabel = $("label[for='" + that.element.attr("id") + "']");
+				targetLabel = $("label[for='" + ele.attr("id") + "']");
 				if (targetLabel.length > 0) {
 					checkboxElement.append(targetLabel);
 					targetLabel.attr("labelsign", "C1");
 				}
-				boxElement = $("<div class='" + that._csspre + 
-				"-box ui-widget ui-state-default ui-corner-all'><span class='" + 
-				that._csspre + "-icon'></span></div>");
-				iconElement = boxElement.children("." + that._csspre + "-icon");
+				boxElement = $("<div class='" + self._csspre +
+				"-box ui-widget ui-state-default ui-corner-all'><span class='" +
+				self._csspre + "-icon'></span></div>");
+				iconElement = boxElement.children("." + self._csspre + "-icon");
 				checkboxElement.append(boxElement);
-				that.element.data("iconElement", iconElement);
-				that.element.data("boxElement", boxElement);
-				if (that.element.is(":disabled")) {
-					that._setOption("disabled", true);
+				ele.data("iconElement", iconElement);
+				ele.data("boxElement", boxElement);
+				if (ele.is(":disabled")) {
+					self._setOption("disabled", true);
 				}
-				boxElement.removeClass(that._csspre + "-relative")
-				.attr("role", "checkbox");
+				boxElement.removeClass(self._csspre + "-relative")
+				.attr("role", "checkbox")
+				.bind("mouseover", function () {
+					ele.mouseover();
+				}).bind("mouseout", function () {
+					ele.mouseout();
+				});
 				if (targetLabel.length === 0 || targetLabel.html() === "") {
-					boxElement.addClass(that._csspre + "-relative");
+					boxElement.addClass(self._csspre + "-relative");
 				}
-				that.element.bind("click.checkbox", function () {
-					that.refresh();
+				ele.bind("click.checkbox", function () {
+					self.refresh();
 				}).bind("focus.checkbox", function () {
-					if (that.options.disabled) {
+					if (self.options.disabled) {
 						return;
 					}
 					boxElement.removeClass("ui-state-default").addClass("ui-state-focus");
 				}).bind("blur.checkbox", function () {
-					if (that.options.disabled) {
+					if (self.options.disabled) {
 						return;
 					}
 					boxElement.removeClass("ui-state-focus").not(".ui-state-hover")
 					.addClass("ui-state-default");
 				}).bind("keydown.checkbox", function (e) {
 					if (e.keyCode === 32) {
-						that.element.attr("checked", !that.element.attr("checked"));
-						that.refresh();
+						ele.attr("checked", !ele.attr("checked"));
+						self.refresh();
 					}
 				});
 				checkboxElement.click(function () {
 					//if (targetLabel.length === 0 || targetLabel.html() === "") {
-					that.element.attr("checked", !that.element.attr("checked"));
-					that.element.focus();
-					that.refresh();
+					ele.attr("checked", !ele.attr("checked"));
+					ele.focus().change();
+					self.refresh();
 					//}
 
 				});
-				that.refresh();
-				checkboxElement.bind("mouseover.checkbox", function () {
-					if (that.options.disabled) {
+				self.refresh();
+				checkboxElement.bind("mouseover.checkbox", function (e) {
+					if (self.options.disabled) {
 						return;
 					}
 					boxElement.removeClass("ui-state-default").addClass("ui-state-hover");
-				}).bind("mouseout.checkbox", function () {
-					if (that.options.disabled) {
+
+				}).bind("mouseout.checkbox", function (e) {
+					if (self.options.disabled) {
 						return;
 					}
 					boxElement.removeClass("ui-state-hover").not(".ui-state-focus")
@@ -128,4 +136,4 @@
 			$.Widget.prototype.destroy.apply(self);
 		}
 	});
-}(jQuery));
+} (jQuery));

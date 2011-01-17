@@ -2,7 +2,7 @@
 /*jslint white: false */
 /*
  *
- * Wijmo Library 1.0.0
+ * Wijmo Library 1.0.1
  * http://wijmo.com/
  *
  * Copyright(c) ComponentOne, LLC.  All rights reserved.
@@ -14,16 +14,15 @@
  * * Wijmo Expander widget.
  * 
  * Depends:
- *  jquery-1.4.2.js
  *  jquery.ui.core.js
  *  jquery.ui.widget.js
- *  jquery.ui.wijutil.js
+ *  jquery.wijmo.wijutil.js
  *  jquery.wijmo.wijexpander.js
  *  Non-default animations requires UI Effects Core
  *
  */
-"use strict";
 (function ($) {
+	"use strict";
 	$.widget("wijmo.wijexpander", {
 		// widget options
 		options: {

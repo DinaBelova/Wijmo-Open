@@ -4,7 +4,7 @@ padding:0.3em;
 position:relative;
 }
 
-.wijmo-wijmenu .ui-wijsuperpanel {
+.wijmo-wijmenu .wijmo-wijsuperpanel {
 border:none;
 background: inherit;
 padding:0;
@@ -167,6 +167,7 @@ overflow:hidden;
 background:inherit;
 position:absolute;
 border-width:0;
+-webkit-box-shadow:none;
 }
 
 .wij-menu-breadcrumb {

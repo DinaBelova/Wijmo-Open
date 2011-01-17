@@ -1,7 +1,7 @@
 /*globals jQuery*/
 /*
  *
- * Wijmo Library 1.0.0
+ * Wijmo Library 1.0.1
  * http://wijmo.com/
  *
  * Copyright(c) ComponentOne, LLC.  All rights reserved.
@@ -18,8 +18,8 @@
  *  jquery.ui.wijsuperpanel.js
  *  
  */
-"use strict";
 (function ($) {
+	"use strict";
 	var listCSS = "ui-widget ui-widget-content ui-corner-all wijmo-wijlist",
 		listItemCSS = "wijmo-wijlist-item",
 		listItemCSSAlternate = listItemCSS + "-alternate",

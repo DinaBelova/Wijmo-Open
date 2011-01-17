@@ -1,6 +1,6 @@
 /*
  *
- * Wijmo Library 1.0.0
+ * Wijmo Library 1.0.1
  * http://wijmo.com/
  *
  * Copyright(c) ComponentOne, LLC.  All rights reserved.
@@ -21,7 +21,11 @@
  *  jquery.wijmo.wijsuperpanel.js
  *	jquery.wijmo.wijutil.js
  */
+
+
+
  (function($) {
+"use strict";
 
 var tabId = 0,
 	listId = 0;

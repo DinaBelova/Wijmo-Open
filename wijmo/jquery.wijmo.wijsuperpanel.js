@@ -1,7 +1,7 @@
 /*globals window document jQuery */
 /*
  *
- * Wijmo Library 1.0.0
+ * Wijmo Library 1.0.1
  * http://wijmo.com/
  *
  * Copyright(c) ComponentOne, LLC.  All rights reserved.
@@ -21,8 +21,8 @@
  *	jquery.mousewheel.js
  *
  */
-"use strict";
 (function ($) {
+	"use strict";
 	var uiSuperPanelClasses = "wijmo-wijsuperpanel " + "ui-widget " + "ui-widget-content",
 		rounderClass = "ui-corner-all",
 		uiStateDisabled = "ui-state-disabled",
@@ -2009,8 +2009,12 @@
 			"h", hbarHtml, content);
 			// having h scroll bar, but no vscroll bar, we need to test vscrolling again.
 			if (hNeedScrollBar && !f.vScrolling) {
-				f.vScrolling = wrapper[0].offsetHeight > (contentHeight - 
+				wrapper.css("float", "left");
+				f.contentHeight = wrapper.height();
+				f.vScrolling = f.contentHeight > (contentHeight -
 				f.hbarContainer[0].offsetHeight);
+
+				wrapper.css("float", "");
 			}
 
 			vNeedScrollBar = self.vNeedScrollBar = 
@@ -2019,8 +2023,11 @@
 			vbarHtml, content);
 
 			if (vNeedScrollBar && !f.hScrolling) {
-				f.hScrolling = wrapper[0].offsetWidth > (contentWidth - 
+				wrapper.css("float", "left");
+				f.contentWidth = wrapper.width();
+				f.hScrolling = f.contentWidth > (contentWidth - 
 				f.vbarContainer[0].offsetWidth);
+				wrapper.css("float", "");
 				if (f.hScrolling) {
 					hNeedScrollBar = self.hNeedScrollBar = 
 					self._needScrollbar(o.hScroller, f.hScrolling);

@@ -2,6 +2,7 @@
 {
     -webkit-user-select: none;
     -moz-user-select: none;
+    display:block;
 }
 
 .wijmo-wijcalendar-header

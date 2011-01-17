@@ -2,7 +2,7 @@
 /*jslint white: false */
 /*
  *
- * Wijmo Library 1.0.0
+ * Wijmo Library 1.0.1
  * http://wijmo.com/
  *
  * Copyright(c) ComponentOne, LLC.  All rights reserved.
@@ -16,11 +16,13 @@
 * Depends:
 *  jquery.ui.core.js
 *  jquery.ui.widget.js
-*  jquery.ui.wijutil.js
+*  jquery.wijmo.wijutil.js
+*  jquery.wijmo.wijaccordion.js
 *
 */
-"use strict";
+
 (function ($) {
+	"use strict";
 	$.widget("wijmo.wijaccordion", {
 		// widget options
 		options: {

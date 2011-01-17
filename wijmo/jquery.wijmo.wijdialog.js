@@ -1,8 +1,7 @@
 /*globals window,document,jQuery*/
-"use strict";
 /*
 *
-* Wijmo Library 1.0.0
+* Wijmo Library 1.0.1
 * http://wijmo.com/
 *
 * Copyright(c) ComponentOne, LLC.  All rights reserved.
@@ -21,7 +20,7 @@
 *
 */
 (function ($) {
-
+	"use strict";
 	var uiStateHover = "ui-state-hover", zonCSS = "wijmo-wijdialog-defaultdockingzone";
 
 	$.widget("wijmo.wijdialog", $.ui.dialog, {
@@ -34,16 +33,16 @@
 			/// <remarks>
 			/// The default value for this option is: 
 			/// {
-			///	pin: {visible: true, click: self.pin, 
+			/// pin: {visible: true, click: self.pin, 
 			/// iconClassOn: "ui-icon-pin-w", iconClassOff:"ui-icon-pin-s"},
-			///	refresh: {visible: true, click: self.refresh, 
+			/// refresh: {visible: true, click: self.refresh, 
 			/// iconClassOn: "ui-icon-refresh"},
-			///	toggle: {visible: true, click: self.toggle},
-			///	minimize: {visible: true, click: self.minimize, 
+			/// toggle: {visible: true, click: self.toggle},
+			/// minimize: {visible: true, click: self.minimize, 
 			/// iconClassOn: "ui-icon-minus"},
-			///	maximize: {visible: true, click: self.maximize, 
+			/// maximize: {visible: true, click: self.maximize, 
 			/// iconClassOn: "ui-icon-extlink"},
-			///	close: {visible: true, click: self.close, 
+			/// close: {visible: true, click: self.close, 
 			/// iconClassOn: "ui-icon-close"}
 			/// };
 			/// Each button is represented by an object in this object. 
@@ -79,7 +78,7 @@
 			/// dock to when wijdialog is minimized.
 			/// Type: String.
 			/// Default: "".
-			///	</summary>
+			/// </summary>
 			minimizeZoneElementId: ""
 		},
 
@@ -98,18 +97,18 @@
 			self.uiDialogButtonPane = $(".ui-dialog-buttonpane", self.uiDialog);
 		},
 
-//		_setMinWidth:function(){
-//			var textWidth = $("#ui-dialog-title-dialog").width(),
-//			iconWidth = $(".wijmo-wijdialog-captionbutton:eq(0)")
-//			.width(),
-//			minWidth = textWidth + 
-//			$(".wijmo-wijdialog-captionbutton").length * iconWidth;
-//			self._setOption("minWidth",minWidth);
-//		},
+		//		_setMinWidth:function(){
+		//			var textWidth = $("#ui-dialog-title-dialog").width(),
+		//			iconWidth = $(".wijmo-wijdialog-captionbutton:eq(0)")
+		//			.width(),
+		//			minWidth = textWidth + 
+		//			$(".wijmo-wijdialog-captionbutton").length * iconWidth;
+		//			self._setOption("minWidth",minWidth);
+		//		},
 
 		_checkUrl: function () {
 			var self = this, o = self.options, url = o.contentUrl,
-			innerFrame = 
+			innerFrame =
 			$('<iframe style="width:100%;height:99%;" frameborder="0"></iframe>');
 			if (typeof url === "string" && url.length > 0) {
 				self.element.addClass("wijmo-wijdialog-hasframe");
@@ -127,33 +126,33 @@
 					visible: true,
 					click: self.pin,
 					iconClassOn: "ui-icon-pin-w",
-					iconClassOff: "ui-icon-pin-s" 
+					iconClassOff: "ui-icon-pin-s"
 				},
 				refresh: {
 					visible: true,
 					click: self.refresh,
-					iconClassOn: "ui-icon-refresh" 
+					iconClassOn: "ui-icon-refresh"
 				},
 				toggle: {
 					visible: true,
 					click: self.toggle,
 					iconClassOn: "ui-icon-carat-1-n",
-					iconClassOff: "ui-icon-carat-1-s" 
+					iconClassOff: "ui-icon-carat-1-s"
 				},
 				minimize: {
 					visible: true,
 					click: self.minimize,
-					iconClassOn: "ui-icon-minus" 
+					iconClassOn: "ui-icon-minus"
 				},
 				maximize: {
 					visible: true,
 					click: self.maximize,
-					iconClassOn: "ui-icon-extlink" 
+					iconClassOn: "ui-icon-extlink"
 				},
 				close: {
 					visible: true,
 					click: self.close,
-					iconClassOn: "ui-icon-close" 
+					iconClassOn: "ui-icon-close"
 				}
 			},
 			oCaptionButtons = o.captionButtons, uiDialogTitlebar = self.uiDialogTitlebar;
@@ -166,13 +165,13 @@
 				captionButtons.push({ button: name, info: value });
 			});
 			self._trigger("buttoncreating", null, captionButtons);
-			for (i = 0; i < captionButtons.length ; i++) {
+			for (i = 0; i < captionButtons.length; i++) {
 				self._createCaptionButton(captionButtons[i], uiDialogTitlebar);
 			}
 		},
 
 		_createCaptionButton: function (buttonHash, uiDialogTitlebar, notAppendToHeader) {
-			var self = this, buttonObject, 
+			var self = this, buttonObject,
 			buttonCSS = "wijmo-wijdialog-titlebar-" + buttonHash.button,
 			button = uiDialogTitlebar.children("." + buttonCSS),
 			info = buttonHash.info, buttonIcon = $("<span></span>");
@@ -247,16 +246,24 @@
 		},
 
 		toggle: function () {
-			var self = this;
+			var self = this, buttonIcon = self.toggleButton.children("span");
 
 			// TODO : toggle animation and event invoking.
-			if (self.collapsed === undefined || !self.collapsed) {
-				self.collapsed = true;
-				self._collapseDialogContent(true);
-			}
-			else {
-				self.collapsed = false;
-				self._expandDialogContent(true);
+			if (!self.minimized) {
+				if (self.collapsed === undefined || !self.collapsed) {
+					self.collapsed = true;
+					if (!buttonIcon.hasClass("ui-icon-carat-1-s")) {
+						buttonIcon.addClass("ui-icon-carat-1-s");
+					}
+					self._collapseDialogContent(true);
+				}
+				else {
+					self.collapsed = false;
+					if (buttonIcon.hasClass("ui-icon-carat-1-s")) {
+						buttonIcon.removeClass("ui-icon-carat-1-s");
+					}
+					self._expandDialogContent(true);
+				}
 			}
 		},
 
@@ -267,7 +274,7 @@
 				self.contentWrapper.show(
 				animationSetting.effect,
 				animationSetting.options,
-				animationSetting.speed, 
+				animationSetting.speed,
 				function (e) {
 					self.uiDialog.css("height", self._toggleHeight);
 					if ($.isFunction(animationSetting.callback)) {
@@ -291,7 +298,7 @@
 			if (fireEvent && animationSetting !== null) {
 				self.contentWrapper.hide(
 				animationSetting.effect,
-				animationSetting.options, 
+				animationSetting.options,
 				animationSetting.speed);
 			}
 			else {
@@ -321,18 +328,22 @@
 			///	</summary>
 
 			var self = this, dlg = self.uiDialog, o = self.options, miniZone = null,
-			$from = $("<div></div>"), $to = $("<div></div>"), defaultZone, scrollTop, top;
+			$from = $("<div></div>"), $to = $("<div></div>"), defaultZone, scrollTop, top,
+			originalPosition, originalSize = {}, position, size = {};
 			// only minimize from normal,maximized state
 			if (!self.minimized) {
-				
+
+				originalPosition = self.uiDialog.position();
+				originalSize.width = self.uiDialog.width();
+				originalSize.height = self.uiDialog.height();
 				if (self.maximized) {
 					self.maximized = false;
-					self.restoreButton.remove(); 
+					self.restoreButton.remove();
 					//fixed bug can't minimize window when it's maximized
 					$(window).unbind(".onWinResize");
 				}
 				else { // minimize from normal state
-					if (self.collapsed) {									
+					if (self.collapsed) {
 						self._expandDialogContent(false);
 					}
 					self._saveNormalState();
@@ -341,7 +352,7 @@
 				self._enableDisableResizer(true);
 				//hide content
 
-				if (self.collapsed) {									
+				if (self.collapsed) {
 					self._collapseDialogContent(false);
 				}
 
@@ -361,7 +372,7 @@
 				// remove size restriction
 				dlg.height("auto");
 				dlg.width("auto");
-								
+
 				self._doButtonAction(self.minimizeButton, "hide");
 				self._restoreButton(true, self.minimizeButton, "After");
 				self._doButtonAction(self.pinButton, "hide");
@@ -386,15 +397,14 @@
 						$(document.body).append(defaultZone);
 					}
 					defaultZone.append(self.uiDialog)
-					.css("z-index", dlg.css("z-index"));				
-								
+					.css("z-index", dlg.css("z-index"));
 				}
 				self.uiDialog.css("position", "static");
 				self.uiDialog.css("float", "left");
 
 				if ($.browser.msie && $.browser.version === '6.0') {
 					scrollTop = $(document).scrollTop();
-					top = document.documentElement.clientHeight - 
+					top = document.documentElement.clientHeight -
 					defaultZone.height() + scrollTop;
 					defaultZone.css({ position: 'absolute', left: "0px", top: top });
 				}
@@ -413,8 +423,18 @@
 					className: "ui-widget-content"
 				}, 100, function () {
 					$from.remove();
-					$to.remove();	
-					self.uiDialog.show();				
+					$to.remove();
+					self.uiDialog.show();
+
+					position = self.uiDialog.position();
+					size.width = self.uiDialog.width();
+					size.height = self.uiDialog.height();
+					self._trigger('resize', null, {
+						originalPosition: originalPosition,
+						originalSize: originalSize,
+						position: position,
+						size: size
+					});
 				});
 				self.minimized = true;
 			}
@@ -428,22 +448,25 @@
 		},
 
 		maximize: function () {
-			var self = this, w = $(window);
+			var self = this, w = $(window), originalPosition, 
+			originalSize = {}, position, size = {};
 
 			if (!self.maximized) {
 				self.maximized = true;
+				originalPosition = self.uiDialog.position();
+				originalSize.width = self.uiDialog.width();
+				originalSize.height = self.uiDialog.height();
 				// maximized from minimized state
 				if (self.minimized) {
 					self.restore(); //bug in IE when minimize -> maximize -> restore
 				}
-				else 
-				{
-					if (self.collapsed) {									
+				else {
+					if (self.collapsed) {
 						self._expandDialogContent(false);
 					}
 					self._saveNormalState();
 				}
-				
+
 				if (self.maximizeButton !== undefined) {
 					self.maximizeButton.hide();
 					self._restoreButton(true, self.maximizeButton, "Before");
@@ -462,6 +485,16 @@
 				self._enableDisableDragger(true);
 				self.uiDialog.resizable({ disabled: true });
 				self.uiDialog.removeClass("ui-state-disabled");
+
+				position = self.uiDialog.position();
+				size.width = self.uiDialog.width();
+				size.height = self.uiDialog.height();
+				self._trigger('resize', null, {
+					originalPosition: originalPosition,
+					originalSize: originalSize,
+					position: position,
+					size: size
+				});
 			}
 		},
 
@@ -479,9 +512,9 @@
 					if (self.minimized) {
 						scrollTop = $(document).scrollTop();
 						defaultZone = self.uiDialog.parent();
-						top = document.documentElement.clientHeight - 
+						top = document.documentElement.clientHeight -
 						defaultZone.height() + scrollTop;
-						defaultZone.css({ top: top});
+						defaultZone.css({ top: top });
 					}
 				});
 			}
@@ -524,16 +557,20 @@
 		},
 
 		restore: function () {
-			///	<summary>
+			/// <summary>
 			///		Restores wijdialog to normal size.
-			///	</summary>
+			/// </summary>
 
-			var self = this, dlg = self.uiDialog, 
-			$from = $("<div></div>"), $to = $("<div></div>");
+			var self = this, dlg = self.uiDialog, originalPosition, originalSize = {},
+			position, size = {}, $from = $("<div></div>"), $to = $("<div></div>");
+
+
 			// restore form minimized state.
 			if (self.minimized) {
 				self.minimized = false;
-
+				originalPosition = self.uiDialog.position();
+				originalSize.width = self.uiDialog.width();
+				originalSize.height = self.uiDialog.height();
 				$from.appendTo(document.body)
 				.css({
 					top: self.uiDialog.offset().top,
@@ -568,6 +605,15 @@
 					className: "ui-widget-content"
 				}, 150, function () {
 					self.uiDialog.show();
+					position = self.uiDialog.position();
+					size.width = self.uiDialog.width();
+					size.height = self.uiDialog.height();
+					self._trigger('resize', null, {
+						originalPosition: originalPosition,
+						originalSize: originalSize,
+						position: position,
+						size: size
+					});
 					$from.remove();
 					$to.remove();
 				});
@@ -587,6 +633,9 @@
 			}
 			else if (self.maximized) {
 				self.maximized = false;
+				originalPosition = self.uiDialog.position();
+				originalSize.width = self.uiDialog.width();
+				originalSize.height = self.uiDialog.height();
 				$(window).unbind(".onWinResize");
 				if (self.collapsed) {
 					self._expandDialogContent();
@@ -602,6 +651,15 @@
 					self.maximizeButton.show();
 					self._restoreButton(false, self.maximizeButton, "before");
 				}
+				position = self.uiDialog.position();
+				size.width = self.uiDialog.width();
+				size.height = self.uiDialog.height();
+				self._trigger('resize', null, {
+					originalPosition: originalPosition,
+					originalSize: originalSize,
+					position: position,
+					size: size
+				});
 			}
 		},
 

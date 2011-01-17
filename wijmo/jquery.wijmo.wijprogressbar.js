@@ -1,8 +1,7 @@
 /*globals setTimeout jQuery*/
-
 /*
  *
- * Wijmo Library 1.0.0
+ * Wijmo Library 1.0.1
  * http://wijmo.com/
  *
  * Copyright(c) ComponentOne, LLC.  All rights reserved.
@@ -37,8 +36,8 @@
 * HTML:
 *  <div id="progressbar" style="width:***;height:***"></div>
 */
-"use strict";
 (function ($) {
+	"use strict";
 	$.widget("wijmo.wijprogressbar", $.ui.progressbar, {
 		options: {
 			/// <summary>

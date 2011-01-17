@@ -1,7 +1,7 @@
 /*globals window,document,jQuery*/
 /*
 *
-* Wijmo Library 1.0.0
+* Wijmo Library 1.0.1
 * http://wijmo.com/
 *
 * Copyright(c) ComponentOne, LLC.  All rights reserved.
@@ -20,8 +20,8 @@
 *	jquery.ui.wijutil.js
 *
 */
-"use strict";
 (function ($) {
+    "use strict";
     $.widget("wijmo.wijsplitter", {
         options: {
             /// <summary>
@@ -77,13 +77,7 @@
                 /// Default: false.
                 /// Type: Boolean.
                 ///	</summary>
-                ghost: false,
-                ///	<summary>
-                ///	A value that determines the movement span of incremental resizing. 
-                /// Default: 1.
-                /// Type: Number.
-                ///	</summary>
-                increment: 1
+                ghost: false
             },
             ///	<summary>
             ///	Defines the information for top or left panel of splitter.
@@ -191,8 +185,8 @@
             var self = this, expander, originalContent, originalStyle;
 
             if (self._getPanel1()) {
-                if (self._getPanel1().is(":ui-wijresizable")) {
-                    self._getPanel1().wijresizable('destroy');
+                if (self._getPanel1().is(":ui-resizable")) {
+                    self._getPanel1().resizable('destroy');
                 }
             }
 
@@ -608,7 +602,7 @@
                 if (minW < 2) {
                     minW = 2;
                 }
-                self._getPanel1().wijresizable({
+                self._getPanel1().resizable({
                     wijanimate: true,
                     minWidth: minW,
                     maxWidth: maxW,
@@ -616,6 +610,7 @@
                     helper: 'wijmo-wijsplitter-v-resize-hepler',
                     animateDuration: self.options.resizeSettings.animationDuration,
                     animateEasing: self.options.resizeSettings.easing,
+                    ghost : self.options.ghost,
                     stop: function (e) {
                         self._resizeStop(e, self);
                     }
@@ -636,7 +631,7 @@
                 if (minH < 2) {
                     minH = 2;
                 }
-                self._getPanel1().wijresizable({
+                self._getPanel1().resizable({
                     wijanimate: true,
                     minHeight: minH,
                     maxHeight: maxH,
@@ -644,6 +639,7 @@
                     helper: 'wijmo-wijsplitter-h-resize-hepler',
                     animateDuration: self.options.resizeSettings.animationDuration,
                     animateEasing: self.options.resizeSettings.easing,
+                    ghost: self.options.ghost,
                     stop: function (e) {
                         self._resizeStop(e, self);
                     }
@@ -802,70 +798,60 @@
             }            
         }
         //end of Splitter implementations.
-    });
-
-
+	});
 }(jQuery));
 
 (function ($) {
-
-	$.widget("ui.wijresizable", $.ui.resizable, {
-		options: {
-			wijanimate: false
-		}
-	});
-
-	$.ui.plugin.add("wijresizable", "wijanimate", {
-
+    "use strict";
+	$.ui.plugin.add("resizable", "wijanimate", {
 		stop: function (event, ui) {
-			var self = $(this).data("wijresizable"), 
-            o = self.options, pr, style, data, ista, soffseth, soffsetw, left, top;
-			self.element.css("width", self.originalSize.width);
-			self.element.css("height", self.originalSize.height);
+			var self = $(this).data("resizable"), 
+				o = self.options, 
+				element = self.element, 
+				pr = self._proportionallyResizeElements, 
+				ista = pr.length && (/textarea/i).test(pr[0].nodeName), 
+				soffseth = ista && $.ui.hasScroll(pr[0], 'left') ?
+							 0 : self.sizeDiff.height,
+				soffsetw = ista ? 0 : self.sizeDiff.width, 
+				style, left, top;
 
-			pr = self._proportionallyResizeElements;
-            ista = pr.length && (/textarea/i).test(pr[0].nodeName);
-			soffseth = ista && $.ui.hasScroll(pr[0], 'left') ? 0 : self.sizeDiff.height;
-			soffsetw = ista ? 0 : self.sizeDiff.width;
+			element.css("width", self.originalSize.width);
+			element.css("height", self.originalSize.height);
 
 			style = { width: (self.size.width - soffsetw), 
-            height: (self.size.height - soffseth) };
-			left = (parseInt(self.element.css('left'), 10) + 
-            (self.position.left - self.originalPosition.left)) || null;
-			top = (parseInt(self.element.css('top'), 10) + 
-            (self.position.top - self.originalPosition.top)) || null;
+					height: (self.size.height - soffseth) };
+			left = (parseInt(element.css('left'), 10) + 
+					(self.position.left - self.originalPosition.left)) || null;
+			top = (parseInt(element.css('top'), 10) + 
+					(self.position.top - self.originalPosition.top)) || null;
 
-			self.element.animate($.extend(style, top && left ? { 
+			element.animate($.extend(style, top && left ? { 
 				top: top,
 				left: left 
-			}: {}), {
-					duration: o.animateDuration,
-					easing: o.animateEasing,
-					step: function () {
+			} : {}), {
+				duration: o.animateDuration,
+				easing: o.animateEasing,
+				step: function () {
+					var data = {
+						width: parseInt(element.css('width'), 10),
+						height: parseInt(element.css('height'), 10),
+						top: parseInt(element.css('top'), 10),
+						left: parseInt(element.css('left'), 10)
+					};
 
-						data = {
-							width: parseInt(self.element.css('width'), 10),
-							height: parseInt(self.element.css('height'), 10),
-							top: parseInt(self.element.css('top'), 10),
-							left: parseInt(self.element.css('left'), 10)
-						};
-
-						if (pr && pr.length) {
-							$(pr[0]).css({ width: data.width, height: data.height });
-						}
-
-						// propagating resize, and updating values for each animation step
-						self._updateCache(data);
-						self._propagate("resize", event);
-						self.element.trigger("animating");
-					},
-					complete: function () {
-						self.element.trigger("animated");
+					if (pr && pr.length) {
+						$(pr[0]).css({ width: data.width, height: data.height });
 					}
-				});
+
+					// propagating resize, and updating values for each animation step
+					self._updateCache(data);
+					self._propagate("resize", event);
+					element.trigger("animating");
+				},
+				complete: function () {
+					element.trigger("animated");
+				}
+			});
 		}
-
 	});
-
-
 }(jQuery));

@@ -1,6 +1,6 @@
 /*
  *
- * Wijmo Library 1.0.0
+ * Wijmo Library 1.0.1
  * http://wijmo.com/
  *
  * Copyright(c) ComponentOne, LLC.  All rights reserved.
@@ -27,7 +27,7 @@
 
 
 (function ($) {
-
+	"use strict";
 	var wijDayType = {
 		general: 0,
 		weekEnd: 1,
@@ -1258,7 +1258,7 @@
 						});
 					}
 					if (!!this.options.selectionMode.weekDay) {
-						this.element.find(".ui-datepicker-week-day, .ui-datepicker-week-end").unbind().bind({
+						this.element.find(".ui-datepicker-week-day").unbind().bind({
 							"click": $.proxy(this.onWeekDayClicked, this),
 							"mouseenter": $.proxy(this.onWeekDayMouseEnter, this),
 							"mouseleave": $.proxy(this.onWeekDayMouseLeave, this)

@@ -1,7 +1,7 @@
 /*globals window document clearTimeout setTimeout jQuery */
 /*
 *
-* Wijmo Library 1.0.0
+* Wijmo Library 1.0.1
 * http://wijmo.com/
 *
 * Copyright(c) ComponentOne, LLC.  All rights reserved.
@@ -18,8 +18,8 @@
 *	jquery.ui.widget.js
 *
 */
-"use strict";
 (function ($) {
+	"use strict";
 	$.widget("wijmo.wijtooltip", {
 		options: {
 			/// <summary>

@@ -1,3 +1,48 @@
+Wijmo-Open v1.0.1
+=============================
+
+"use strict" has been moved into the main closure for all widgets.
+
+Menu
+-------
+Fixed bug: Setting the animated and duration options wasn't effecting animation.
+
+Calendar
+-------
+Fixed bug: Exception is fired when clicking a weekend day if the weekDay selection is allowed.
+
+Splitter
+-------- 
+Fixed bug : ghost function in Splitter wasn't working correctly.
+Remove increment from option.
+
+Dropdown
+--------
+Fixed bug : Bind event (change,click) was not working in select .
+Attach select element event to dropdown.
+
+Splitter
+-------- 
+wijsplitter code appears a new problem. This makes the sample of wijmo-open can¡¯t work.
+
+Dialog
+------
+Fixed: Fire event "resize" when maximized. 
+Fixed: Icon class when using "toggle" method.
+
+Changes made to version 0.9.0
+=============================
+
+Accordion
+------
+wijlinechart that located inside hidden accordion pane now updated automatically when pane visibility state changed.
+Fixed problem with wrong jquery.wijmo.wijutil references for the samples and unit test.
+"use strict"; moved into the function scope.
+
+Expander
+------
+Fixed problem with wrong jquery.wijmo.wijutil references for the samples and unit test.
+"use strict"; moved into the function scope.
 
 Changes made to version 0.8.2
 =============================
@@ -51,8 +96,9 @@ Progressbar
 --------------------
 Remove the progressbar label's z-index to avoid cover other widget.
 
+
 Changes made to version 0.8.1
------------------------------
+=============================
 
 Accordion
 ---------
@@ -63,13 +109,27 @@ CheckBoxDecorator
 -----------------
 Modified checkboxElement.click.  The checkbox was not being checked/unchecked 
 when placed inside a dialog widget.
+Fixed a bug that can't use the space bar to check/uncheck a checkbox.  Added the keydown event handle th handle the space key down. 
+Add ARIA support and rename the widget namespace.
 
 Menu, ToolTip
 -------------
 Upgrade bgiframe from 2.1.1 to 2.1.3-pre.  This version fixed the issue that iframe is 
 still created on the win7 and ie7/8/9.
+Fixed the callout not shown correctly. Changed the call out border from dotted to solid.
+Add an event before show the submenu.
+Add Aria support.
+Fixed the keyboard enter key event not show the submenu and hide the last submenu correctly.
+Rename the widget namespace.
+When click the close button, the url will set a '#' at the end. Fixed this bug.
 
-progressbar
+
+Progressbar
 -----------
 Fixed not shown corectly when the fillDirection set to 'north' or 'south' 
 and labelAlign set to 'north' or south.
+Fixed the progress value is not corectly. When the indicatorIncrement is one, don't caculate the progress value. 
+Add ARIA support and rename the widget namespace.
+
+
+

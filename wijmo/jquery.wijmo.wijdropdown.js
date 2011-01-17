@@ -1,8 +1,7 @@
 /*globals jQuery,document,window*/
-"use strict";
 /*
 *
-* Wijmo Library 1.0.0
+* Wijmo Library 1.0.1
 * http://wijmo.com/
 *
 * Copyright(c) ComponentOne, LLC.  All rights reserved.
@@ -20,6 +19,7 @@
 *
 */
 (function ($) {
+	"use strict";
 	$.widget("wijmo.wijdropdown", {
 		options: {
 			width: 200,
@@ -31,6 +31,47 @@
 		hoverClass: "ui-state-hover",
 		activeClass: "ui-state-active",
 		focusClass: "ui-state-focus",
+
+		_setOption: function (key, value) {
+			var isResize = false, self = this;
+
+			switch (key) {
+			case "width":
+				if (self.options.width !== value) {
+					isResize = true;
+				}
+				break;
+			case "height":
+				if (self.options.height !== value) {
+					isResize = true;
+				}
+				break;
+			default:
+				break;
+			}
+
+			$.Widget.prototype._setOption.apply(self, arguments);
+
+			if (isResize) {
+				self.div.css({
+					height: self.options.height,
+					width: self.options.width
+				});
+
+				self.$dropdownList.css({
+					width: ""
+				});
+
+				self.div.show();
+				self.div.wijsuperpanel("paintPanel");
+				self.div.hide();
+
+				self.element.closest(".wijmo-wijdropdown")
+				.css({
+					width: self.options.width
+				});
+			}
+		},
 
 		_create: function () {
 			if (this.element.attr("tagName").toLowerCase() !== "select" &&
@@ -49,7 +90,7 @@
 			$(n).wrap("<div></div>");
 			dropdownbox = $(n).parent().addClass("ui-helper-hidden");
 
-			container = dropdownbox.parent().attr("role", "select")
+			self.container = container = dropdownbox.parent().attr("role", "select")
 			.addClass("wijmo-wijdropdown ui-widget ui-widwijmo-wijdropdownt-content " +
 			"ui-state-default ui-corner-all ui-helper-clearfix");
 
@@ -112,19 +153,24 @@
 				else {
 					self._hide();
 				}
+				self.element.trigger('click');
 				event.preventDefault();
 			}).bind("mouseover." + self.widgetName, function () {
 				label.addClass(self.hoverClass);
 				inputWrap.addClass(self.hoverClass);
+				self.element.trigger('mouseover');
 			}).bind("mouseout." + self.widgetName, function () {
 				label.removeClass(self.hoverClass);
 				inputWrap.removeClass(self.hoverClass);
+				self.element.trigger('mouseout');
 			}).bind("mousedown." + self.widgetName, function () {
 				label.addClass(self.activeClass);
 				inputWrap.addClass(self.activeClass);
+				self.element.trigger('mousedown');
 			}).bind("mouseup." + self.widgetName, function () {
 				label.removeClass(self.activeClass);
 				inputWrap.removeClass(self.activeClass);
+				self.element.trigger('mouseup');
 			});
 
 			inputWrap.bind("click." + self.widgetName, function () {
@@ -134,19 +180,24 @@
 				else {
 					self._hide();
 				}
+				self.element.trigger('click');
 				self.$anthorWarp.focus();
 			}).bind("mouseover." + self.widgetName, function () {
 				label.addClass(self.hoverClass);
 				inputWrap.addClass(self.hoverClass);
+				self.element.trigger('mouseover');
 			}).bind("mouseout." + self.widgetName, function () {
 				label.removeClass(self.hoverClass);
 				inputWrap.removeClass(self.hoverClass);
+				self.element.trigger('mouseout');
 			}).bind("mousedown." + self.widgetName, function () {
 				label.addClass(self.activeClass);
 				inputWrap.addClass(self.activeClass);
+				self.element.trigger('mousedown');
 			}).bind("mouseup." + self.widgetName, function () {
 				label.removeClass(self.activeClass);
 				inputWrap.removeClass(self.activeClass);
+				self.element.trigger('mouseup');
 			});
 
 			$(document.body).bind("click." + self.widgetName, function (e) {
@@ -187,7 +238,13 @@
 				if (el.closest("li.wijmo-dropdown-item", $(this)).length > 0) {
 					self._setValue();
 					$(this).hide();
+					self.oldVal = self.element.val();
+					self.element.val(self._value);
+					if (self.oldVal !== self._value) {
+						self.element.trigger("change");
+					}
 				}
+				self.element.trigger('click');
 			});
 
 			height = Math.min(self.options.height, self.$dropdownList.outerHeight());
@@ -235,15 +292,27 @@
 				case keyCode.NUMPAD_ENTER:
 					self._setValue();
 					self.div.hide();
+					self.oldVal = self.element.val();
+					self.element.val(self._value);
+					if (self.oldVal !== self._value) {
+						self.element.trigger("change");
+					}
 					e.preventDefault();
 					break;
 				}
+				self.element.trigger('keydown');
 			}).bind("focus." + self.widgetName, function () {
 				label.addClass(self.focusClass);
 				inputWrap.addClass(self.focusClass);
+				self.element.trigger('focus');
 			}).bind("blur." + self.widgetName, function () {
 				label.removeClass(self.focusClass);
 				inputWrap.removeClass(self.focusClass);
+				self.element.trigger('blur');
+			}).bind("keypress." + self.widgetName, function () {
+				self.element.trigger('keypress');
+			}).bind("keyup." + self.widgetName, function () {
+				self.element.trigger('keyup');
 			});
 		},
 
@@ -257,15 +326,28 @@
 
 		_buildItem: function ($item) {
 			var val = $item.val(), text = $item.text(), self = this,
-				$li = $("<li class=\"wijmo-dropdown-item ui-corner-all\"><span>" +
-					text + "</span></li>")
-					.mousemove(function (event) {
-						var current = $(event.target).closest(".wijmo-dropdown-item");
-						if (current !== this.last) {
-							self._activate($(this));
-						}
-						this.last = $(event.target).closest(".wijmo-dropdown-item");
-					}).attr("role", "option");
+			$li = $("<li class=\"wijmo-dropdown-item ui-corner-all\"><span>" +
+			text + "</span></li>")
+			.mousemove(function (event) {
+				var current = $(event.target).closest(".wijmo-dropdown-item");
+				if (current !== this.last) {
+					self._activate($(this));
+				}
+				this.last = $(event.target).closest(".wijmo-dropdown-item");
+			})
+			.bind("mouseover." + self.widgetName, function () {
+				self.element.trigger('mouseover');
+			})
+			.bind("mouseout." + self.widgetName, function () {
+				self.element.trigger('mouseout');
+			})
+			.bind("mousedown." + self.widgetName, function () {
+				self.element.trigger('mousedown');
+			})
+			.bind("mouseup." + self.widgetName, function () {
+				self.element.trigger('mouseup');
+			})
+			.attr("role", "option");
 			$li.data("value", val);
 			return $li;
 		},
@@ -274,7 +356,7 @@
 			var self = this, showingAnimation = self.options.showingAnimation,
 				div = self.div;
 			div.css("z-index", "100000");
-			if ($.browser.msie && ($.browser.version === "6.0" || 
+			if ($.browser.msie && ($.browser.version === "6.0" ||
 			$.browser.version === "7.0")) {
 				div.parent().css("z-index", "99999");
 			}
@@ -343,7 +425,6 @@
 						top + height - div.height() - self.$dropdownList.offset().top);
 					}
 				}
-				self.element.val(self._value);
 			}
 		},
 
@@ -429,7 +510,7 @@
 			var self = this, base, height, result;
 			if (self.superpanel.vNeedScrollBar) {
 				if (!self._activeItem || self._isLast()) {
-					self.activate(self.element.children(":first"));
+					self._activate(self.element.children(":first"));
 					return;
 				}
 				base = self._activeItem.offset().top;
@@ -498,4 +579,4 @@
 			$.Widget.prototype.destroy.apply(this);
 		}
 	});
-}(jQuery));
+} (jQuery));

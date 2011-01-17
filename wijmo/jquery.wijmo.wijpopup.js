@@ -1,6 +1,6 @@
 /*
  *
- * Wijmo Library 1.0.0
+ * Wijmo Library 1.0.1
  * http://wijmo.com/
  *
  * Copyright(c) ComponentOne, LLC.  All rights reserved.
@@ -19,7 +19,7 @@
  */
 
 (function ($) {
-
+	"use strict";
 	$.fn.extend({
 		getBounds: function () {
 			return $.extend({}, $(this).offset(), { width: $(this).outerWidth(true), height: $(this).outerHeight(true) });

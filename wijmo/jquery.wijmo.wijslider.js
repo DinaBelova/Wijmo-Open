@@ -1,7 +1,7 @@
 /*globals window,document,jQuery*/
 /*
  *
- * Wijmo Library 1.0.0
+ * Wijmo Library 1.0.1
  * http://wijmo.com/
  *
  * Copyright(c) ComponentOne, LLC.  All rights reserved.
@@ -20,9 +20,9 @@
  *  jquery.ui.wijutil.js
  *  
  */
-"use strict";
-(function ($) {
 
+(function ($) {
+    "use strict";
     $.widget("wijmo.wijslider", $.ui.slider, {
         options: {
             /// <summary>
