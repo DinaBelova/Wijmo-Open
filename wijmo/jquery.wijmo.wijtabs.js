@@ -1,6 +1,6 @@
 /*
  *
- * Wijmo Library 1.0.1
+ * Wijmo Library 1.1.2
  * http://wijmo.com/
  *
  * Copyright(c) ComponentOne, LLC.  All rights reserved.
@@ -54,10 +54,6 @@ $.widget("wijmo.wijtabs", {
 		///	</summary>
 		scrollable: false,
 		///	<summary>
-		///		This event is triggered when a tab is added.
-		///	</summary>
-		add: null,
-		///	<summary>
 		///		Additional Ajax options to consider when loading tab content (see $.ajax).
 		///	</summary>
 		ajaxOptions: null,
@@ -87,17 +83,9 @@ $.widget("wijmo.wijtabs", {
 		///	</summary>
 		showOption: null, // e.g. { blind: true, fade: true, duration: 200}
 		///	<summary>
-		///		This event is triggered when a tab is disabled.
-		///	</summary>
-		disable: null,
-		///	<summary>
 		///		An array containing the position of the tabs (zero-based index) that should be disabled on initialization.
 		///	</summary>
 		disabled: [],
-		///	<summary>
-		///		This event is triggered when a tab is enabled.
-		///	</summary>
-		enable: null,
 		///	<summary>
 		///		The type of event to be used for selecting a tab.
 		///	</summary>
@@ -108,26 +96,10 @@ $.widget("wijmo.wijtabs", {
 		///	</summary>
 		idPrefix: 'ui-tabs-',
 		///	<summary>
-		///		This event is triggered after the content of a remote tab has been loaded.
-		///	</summary>
-		load: null,
-		///	<summary>
 		///		HTML template from which a new tab panel is created in case of adding a tab with the add method or 
 		///		when creating a panel for a remote tab on the fly.
 		///	</summary>
 		panelTemplate: '<div></div>',
-		///	<summary>
-		///		This event is triggered when a tab is removed.
-		///	</summary>
-		remove: null,
-		///	<summary>
-		///		This event is triggered when clicking a tab.
-		///	</summary>
-		select: null,
-		///	<summary>
-		///		This event is triggered when a tab is shown.
-		///	</summary>
-		show: null,
 		///	<summary>
 		///		The HTML content of this string is shown in a tab title while remote content is loading. 
 		///		Pass in empty string to deactivate that behavior. 
@@ -139,7 +111,112 @@ $.widget("wijmo.wijtabs", {
 		///		The placeholders #{href} and #{label} are replaced with the url and tab label that are passed as 
 		///		arguments to the add method.
 		///	</summary>
-		tabTemplate: '<li><a href="#{href}"><span>#{label}</span></a></li>'
+		tabTemplate: '<li><a href="#{href}"><span>#{label}</span></a></li>',
+		/// <summary>
+		/// The add event handler. A function called when a tab is added.
+		/// Default: null.
+		/// Type: Function.
+		/// Code example: $("#element").wijtabs({ add: function (e, ui) { } });
+		/// </summary>
+		///
+		/// <param name="e" type="EventObj">EventObj that relates to this event.</param>
+		/// <param name="ui" type="Object">
+		/// The data that contains the related ui elements.
+		/// ui.tab: The tab element.
+		/// ui.panel: The panel element.
+		/// ui.index: The index of the tab.
+		///</param>
+		add: null,
+        /// <summary>
+		/// The remove event handler. A function called when a tab is removed.
+		/// Default: null.
+		/// Type: Function.
+		/// Code example: $("#element").wijtabs({ remove: function (e, ui) { } });
+		/// </summary>
+		///
+		/// <param name="e" type="EventObj">EventObj that relates to this event.</param>
+		/// <param name="ui" type="Object">
+		/// The data that contains the related ui elements.
+		/// ui.tab: The tab element.
+		/// ui.panel: The panel element.
+		/// ui.index: The index of the tab.
+		///</param>
+		remove: null,
+        /// <summary>
+		/// The select event handler. A function called when clicking a tab.
+		/// Default: null.
+		/// Type: Function.
+		/// Code example: $("#element").wijtabs({ select: function (e, ui) { } });
+		/// </summary>
+		///
+		/// <param name="e" type="EventObj">EventObj that relates to this event.</param>
+		/// <param name="ui" type="Object">
+		/// The data that contains the related ui elements.
+		/// ui.tab: The tab element.
+		/// ui.panel: The panel element.
+		/// ui.index: The index of the tab.
+		///</param>
+		select: null,
+        /// <summary>
+		/// The show event handler. A function called when a tab is shown.
+		/// Default: null.
+		/// Type: Function.
+		/// Code example: $("#element").wijtabs({ show: function (e, ui) { } });
+		/// </summary>
+		///
+		/// <param name="e" type="EventObj">EventObj that relates to this event.</param>
+		/// <param name="ui" type="Object">
+		/// The data that contains the related ui elements.
+		/// ui.tab: The tab element.
+		/// ui.panel: The panel element.
+		/// ui.index: The index of the tab.
+		///</param>
+		show: null,
+        /// <summary>
+		/// The load event handler. A function called after the content of a remote tab has been loaded.
+		/// Default: null.
+		/// Type: Function.
+		/// Code example: $("#element").wijtabs({ load: function (e, ui) { } });
+		/// </summary>
+		///
+		/// <param name="e" type="EventObj">EventObj that relates to this event.</param>
+		/// <param name="ui" type="Object">
+		/// The data that contains the related ui elements.
+		/// ui.tab: The tab element.
+		/// ui.panel: The panel element.
+		/// ui.index: The index of the tab.
+		///</param>
+		load: null,
+        /// <summary>
+		/// The disable event handler. A function called when a tab is disabled.
+		/// Default: null.
+		/// Type: Function.
+		/// Code example: $("#element").wijtabs({ disable: function (e, ui) { } });
+		/// </summary>
+		///
+		/// <param name="e" type="EventObj">EventObj that relates to this event.</param>
+		/// <param name="ui" type="Object">
+		/// The data that contains the related ui elements.
+		/// ui.tab: The tab element.
+		/// ui.panel: The panel element.
+		/// ui.index: The index of the tab.
+		///</param>
+		disable: null,
+        /// <summary>
+		/// The enable event handler. A function called when a tab is enabled.
+		/// Default: null.
+		/// Type: Function.
+		/// Code example: $("#element").wijtabs({ enable: function (e, ui) { } });
+		/// </summary>
+		///
+		/// <param name="e" type="EventObj">EventObj that relates to this event.</param>
+		/// <param name="ui" type="Object">
+		/// The data that contains the related ui elements.
+		/// ui.tab: The tab element.
+		/// ui.panel: The panel element.
+		/// ui.index: The index of the tab.
+		///</param>
+		enable: null
 	},
 
 	_create: function() {
