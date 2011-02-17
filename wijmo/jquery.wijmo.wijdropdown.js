@@ -1,7 +1,7 @@
 /*globals jQuery,document,window*/
 /*
 *
-* Wijmo Library 1.0.1
+* Wijmo Library 1.1.2
 * http://wijmo.com/
 *
 * Copyright(c) ComponentOne, LLC.  All rights reserved.
@@ -22,8 +22,6 @@
 	"use strict";
 	$.widget("wijmo.wijdropdown", {
 		options: {
-			width: 200,
-			height: 250,
 			zIndex: 1000,
 			showingAnimation: { effect: "blind" },
 			hidingAnimation: { effect: "blind" }
@@ -33,286 +31,229 @@
 		focusClass: "ui-state-focus",
 
 		_setOption: function (key, value) {
-			var isResize = false, self = this;
-
-			switch (key) {
-			case "width":
-				if (self.options.width !== value) {
-					isResize = true;
-				}
-				break;
-			case "height":
-				if (self.options.height !== value) {
-					isResize = true;
-				}
-				break;
-			default:
-				break;
-			}
-
-			$.Widget.prototype._setOption.apply(self, arguments);
-
-			if (isResize) {
-				self.div.css({
-					height: self.options.height,
-					width: self.options.width
-				});
-
-				self.$dropdownList.css({
-					width: ""
-				});
-
-				self.div.show();
-				self.div.wijsuperpanel("paintPanel");
-				self.div.hide();
-
-				self.element.closest(".wijmo-wijdropdown")
-				.css({
-					width: self.options.width
-				});
-			}
+			$.Widget.prototype._setOption.apply(this, arguments);
 		},
 
 		_create: function () {
-			if (this.element.attr("tagName").toLowerCase() !== "select" &&
-			this.element.attr("size") < 2) {
+			var self = this,
+				ele = self.element;
+			if (ele.attr("tagName").toLowerCase() !== "select" &&
+			ele.attr("size") < 2) {
 				return;
 			}
-			this._activeItem = null;
-			this._applySelect(this.element);
+
+			self._activeItem = null;
+			self._createSelect();
+			self._bindEvents();
 		},
 
-		_applySelect: function (n) {
-			var self = this, height = $(n).outerHeight(), dropdownbox,
-			container, label, inputWrap, span, maxIndex;
+		_createSelect: function () {
+			var self = this,
+				ele = self.element,
+				width = ele.width(),
+				height = ele.height(),
+				selectWrap = ele.wrap("<div></div>").parent()
+					.addClass("ui-helper-hidden"),
+				container = selectWrap.wrap("<div></div>")
+					.parent().attr("role", "select")
+					.addClass("wijmo-wijdropdown ui-widget ui-widwijmo-wijdropdownt" +
+					"-content ui-state-default ui-corner-all ui-helper-clearfix"),
+				label = $("<label class=\"wijmo-dropdown-label ui-corner-all\"></label>")
+					.attr("id", ele.attr("id") + "_select")
+					.attr("name", ele.attr("name")),
+				rightTrigger = $("<div></div>")
+					.addClass("wijmo-dropdown-trigger ui-state-default ui-corner-right"),
+				labelWrap = $("<a href=\"#\"></a>"),
+				listContainer = $("<div>").addClass("wijmo-dropdown"),
+				list = $("<ul></ul>")
+					.addClass("wijmo-dropdown-list ui-widget-content " +
+					"ui-widget ui-corner-all ui-helper-reset").appendTo(listContainer);
 
-			$(n).wrap("<div></div>");
-			$(n).wrap("<div></div>");
-			dropdownbox = $(n).parent().addClass("ui-helper-hidden");
+			$("<span></span>")
+					.addClass("ui-icon ui-icon-triangle-1-s")
+					.appendTo(rightTrigger);
+			width = Math.max(width, container.width());
+			labelWrap.append(label);
+			container.append(selectWrap)
+				.append(labelWrap)
+				.append(rightTrigger)
+				.append(listContainer)
+				.width(width);
 
-			self.container = container = dropdownbox.parent().attr("role", "select")
-			.addClass("wijmo-wijdropdown ui-widget ui-widwijmo-wijdropdownt-content " +
-			"ui-state-default ui-corner-all ui-helper-clearfix");
-
-			label = $("<label class=\"wijmo-dropdown-label ui-corner-all\"></label>")
-			.attr("id", self.element.attr("id") + "_select")
-			.attr("name", $(n).attr("name"));
-			inputWrap = $("<div></div>")
-			.addClass("wijmo-dropdown-trigger ui-state-default ui-corner-right");
-			span = $("<span></span>")
-			.addClass("ui-icon ui-icon-triangle-1-s")
-			.appendTo(inputWrap);
-
-			self._value = $(n).val();
-
-			self.$anthorWarp = $("<a href=\"#\"></a>");
-			self.$anthorWarp.append(label);
-
-			self.div = $("<div>");
-			container.append(self.$anthorWarp);
-			container.append(inputWrap);
-			container.append(self.div);
-			container.css({
-				width: self.options.width
-			});
-			self.div.addClass("wijmo-dropdown");
-			label.data("dropdown", self.div);
-
-			self.$dropdownList = $("<ul></ul>")
-			.addClass("wijmo-dropdown-list ui-widget-content " +
-			"ui-widget ui-corner-all ui-helper-reset")
-			.appendTo(self.div);
-
-			self.element.children().each(function () {//this.element
-				var $chilren = $(this), $item, $items, $list, $text;
-				if ($chilren.is("option")) {
-					$item = $(this);
-					self.$dropdownList.append(self._buildItem($item));
+			ele.children().each(function (i, n) {
+				var item = $(n),
+					group, groupText, goupItems;
+				if (item.is("option")) {
+					list.append(self._buildItem(item));
 				}
-				else if ($chilren.is("optgroup")) {
-					$list = $("<li class=\"wijmo-dropdown-optgroup\"></li>");
-					$text = $("<span>" +
-					$chilren.attr("label") + "</span>")
+				else {
+					group = $("<li class=\"wijmo-dropdown-optgroup\"></li>");
+					groupText = $("<span>" + item.attr("label") + "</span>")
 					.addClass("wijmo-optgroup-header ui-priority-primary");
-					$items = $("<ul></ul>")
+					goupItems = $("<ul></ul>")
 					.addClass("ui-helper-reset wijmo-dropdown-items");
-					$list.append($text).append($items);
-
-					$chilren.children("option").each(function () {
-						var $item = $(this);
-						$items.append(self._buildItem($item));
+					group.append(groupText)
+						.append(goupItems);
+					item.children("option").each(function () {
+						goupItems.append(self._buildItem($(this)));
 					});
-					self.$dropdownList.append($list);
+					list.append(goupItems);
 				}
 			});
 
-			label.bind("click." + self.widgetName, function (event) {
-				if (!self.div.is(":visible")) {
-					self._show();
-				}
-				else {
-					self._hide();
-				}
-				self.element.trigger('click');
-				event.preventDefault();
-			}).bind("mouseover." + self.widgetName, function () {
-				label.addClass(self.hoverClass);
-				inputWrap.addClass(self.hoverClass);
-				self.element.trigger('mouseover');
-			}).bind("mouseout." + self.widgetName, function () {
-				label.removeClass(self.hoverClass);
-				inputWrap.removeClass(self.hoverClass);
-				self.element.trigger('mouseout');
-			}).bind("mousedown." + self.widgetName, function () {
-				label.addClass(self.activeClass);
-				inputWrap.addClass(self.activeClass);
-				self.element.trigger('mousedown');
-			}).bind("mouseup." + self.widgetName, function () {
-				label.removeClass(self.activeClass);
-				inputWrap.removeClass(self.activeClass);
-				self.element.trigger('mouseup');
-			});
-
-			inputWrap.bind("click." + self.widgetName, function () {
-				if (!self.div.is(":visible")) {
-					self._show();
-				}
-				else {
-					self._hide();
-				}
-				self.element.trigger('click');
-				self.$anthorWarp.focus();
-			}).bind("mouseover." + self.widgetName, function () {
-				label.addClass(self.hoverClass);
-				inputWrap.addClass(self.hoverClass);
-				self.element.trigger('mouseover');
-			}).bind("mouseout." + self.widgetName, function () {
-				label.removeClass(self.hoverClass);
-				inputWrap.removeClass(self.hoverClass);
-				self.element.trigger('mouseout');
-			}).bind("mousedown." + self.widgetName, function () {
-				label.addClass(self.activeClass);
-				inputWrap.addClass(self.activeClass);
-				self.element.trigger('mousedown');
-			}).bind("mouseup." + self.widgetName, function () {
-				label.removeClass(self.activeClass);
-				inputWrap.removeClass(self.activeClass);
-				self.element.trigger('mouseup');
-			});
-
-			$(document.body).bind("click." + self.widgetName, function (e) {
-				var div = self.div,
-					offset;
-
-				if (div.is(":hidden")) {
-					return;
-				}
-				offset = div.offset();
-				if (e.target === label.get(0) ||
-				e.target === inputWrap.get(0) ||
-				e.target === inputWrap.children().get(0)) {
-					return;
-				}
-				//Add comments by RyanWu@20101124.
-				//For fixing the issue that hide method maybe be invoked 
-				//twice when clicking on some special places.
-				//				if (e.pageX < offset.left || 
-				//				e.pageX > offset.left + self.div.width()) {
-				//					self.div.hide();
-				//				}
-				//				if (e.pageY < offset.top || 
-				//				e.pageY > offset.top + self.div.height()) {
-				//					self.div.hide();
-				//				}
-				if (e.pageX < offset.left || e.pageX > offset.left + div.width() ||
-					e.pageY < offset.top || e.pageY > offset.top + div.height()) {
-					self._hide();
-				}
-				//end by RyanWu@20101124.
-			});
-
-
-
-			self.div.bind("click." + self.widgetName, function (event) {
-				var el = $(event.target);
-				if (el.closest("li.wijmo-dropdown-item", $(this)).length > 0) {
-					self._setValue();
-					$(this).hide();
-					self.oldVal = self.element.val();
-					self.element.val(self._value);
-					if (self.oldVal !== self._value) {
-						self.element.trigger("change");
-					}
-				}
-				self.element.trigger('click');
-			});
-
-			height = Math.min(self.options.height, self.$dropdownList.outerHeight());
-
-			maxIndex = self._getMaxZIndex();
-			self.div.css({
+			height = listContainer.height();
+			height = list.outerHeight() < height ? list.outerHeight() : height;
+			listContainer.css({
 				height: height,
-				width: self.options.width
+				width: width
 			});
-			self.superpanel = self.div.wijsuperpanel().data("wijsuperpanel");
 
+			self.superpanel = listContainer.wijsuperpanel().data("wijsuperpanel");
 			if ($.fn.bgiframe) {
 				self.superpanel.element.bgiframe();
 			}
-			self.$dropdownList
-			.setOutWidth(self.$dropdownList.parent().parent().innerWidth());
-			self.div.hide();
+			list.setOutWidth(list.parent().parent().innerWidth());
+			listContainer.hide();
 
-			self.$anthorWarp.bind("keydown." + self.widgetName, function (e) {
+			self._rightTrigger = rightTrigger;
+			self._label = label;
+			self._listContainer = listContainer;
+			self._list = list;
+			self._value = ele.val();
+			self._selectWrap = selectWrap;
+			self._labelWrap = labelWrap;
+		},
+
+		_handelEvents: function (ele) {
+			var self = this,
+				namespace = "." + self.widgetName,
+				element = self.element;
+
+			ele.bind("click" + namespace, function (e) {
+				if (self._listContainer.is(":hidden")) {
+					self._show();
+				}
+				else {
+					self._hide();
+				}
+				element.click();
+				if (ele.get(0) === self._label.get(0)) {
+					e.preventDefault();
+				}
+				else {
+					self._labelWrap.focus();
+				}
+			}).bind("mouseover" + namespace, function () {
+				self._label.addClass(self.hoverClass);
+				self._rightTrigger.addClass(self.hoverClass);
+				element.trigger('mouseover');
+			}).bind("mouseout" + namespace, function () {
+				self._label.removeClass(self.hoverClass);
+				self._rightTrigger.removeClass(self.hoverClass);
+				element.trigger('mouseout');
+			}).bind("mousedown" + namespace, function () {
+				self._label.addClass(self.activeClass);
+				self._rightTrigger.addClass(self.activeClass);
+				element.trigger('mousedown');
+			}).bind("mouseup" + namespace, function () {
+				self._label.removeClass(self.activeClass);
+				self._rightTrigger.removeClass(self.activeClass);
+				element.trigger('mouseup');
+			});
+		},
+
+		_bindEvents: function () {
+			var self = this,
+				namespace = "." + self.widgetName,
+				label = self._label,
+				rightTrigger = self._rightTrigger,
+				labelWrap = self._labelWrap,
+				listContainer = self._listContainer,
+				ele = self.element,
+				offset;
+			self._handelEvents(self._label);
+			self._handelEvents(self._rightTrigger);
+
+			$(document.body).bind("click" + namespace, function (e) {
+				if (listContainer.is(":hidden")) {
+					return;
+				}
+				offset = listContainer.offset();
+				if (e.target === label.get(0) ||
+				e.target === rightTrigger.get(0) ||
+				e.target === rightTrigger.children().get(0)) {
+					return;
+				}
+				if (e.pageX < offset.left ||
+					e.pageX > offset.left + listContainer.width() ||
+					e.pageY < offset.top ||
+					e.pageY > offset.top + listContainer.height()) {
+					self._hide();
+				}
+			});
+
+			listContainer.bind("click" + namespace, function (e) {
+				var target = $(e.target);
+				if (target.closest("li.wijmo-dropdown-item", $(this)).length > 0) {
+					self._setValue();
+					listContainer.hide();
+					self.oldVal = ele.val();
+					ele.val(self._value);
+					if (self.oldVal !== self._value) {
+						ele.trigger("change");
+					}
+				}
+				ele.click();
+			});
+
+			labelWrap.bind("keydown" + namespace, function (e) {
 				var keyCode = $.ui.keyCode;
 				switch (e.which) {
 				case keyCode.UP:
 				case keyCode.LEFT:
 					self.previous();
 					self._setValue();
-					e.preventDefault();
 					break;
 				case keyCode.DOWN:
 				case keyCode.RIGHT:
 					self.next();
 					self._setValue();
-					e.preventDefault();
 					break;
 				case keyCode.PAGE_DOWN:
-					self.nextPage(true);
+					self.nextPage();
 					self._setValue();
-					e.preventDefault();
 					break;
 				case keyCode.PAGE_UP:
-					self.previousPage(true);
+					self.previousPage();
 					self._setValue();
-					e.preventDefault();
 					break;
 				case keyCode.ENTER:
 				case keyCode.NUMPAD_ENTER:
 					self._setValue();
-					self.div.hide();
-					self.oldVal = self.element.val();
-					self.element.val(self._value);
+					self._listContainer.hide();
+					self.oldVal = ele.val();
+					ele.val(self._value);
 					if (self.oldVal !== self._value) {
-						self.element.trigger("change");
+						ele.trigger("change");
 					}
-					e.preventDefault();
 					break;
 				}
-				self.element.trigger('keydown');
-			}).bind("focus." + self.widgetName, function () {
+				if (e.which !== keyCode.TAB) {
+					e.preventDefault();
+				}
+				ele.trigger('keydown');
+			}).bind("focus" + namespace, function () {
 				label.addClass(self.focusClass);
-				inputWrap.addClass(self.focusClass);
-				self.element.trigger('focus');
-			}).bind("blur." + self.widgetName, function () {
+				rightTrigger.addClass(self.focusClass);
+				ele.focus();
+			}).bind("blur" + namespace, function () {
 				label.removeClass(self.focusClass);
-				inputWrap.removeClass(self.focusClass);
-				self.element.trigger('blur');
-			}).bind("keypress." + self.widgetName, function () {
-				self.element.trigger('keypress');
-			}).bind("keyup." + self.widgetName, function () {
-				self.element.trigger('keyup');
+				rightTrigger.removeClass(self.focusClass);
+				ele.trigger('blur');
+			}).bind("keypress" + namespace, function () {
+				ele.trigger('keypress');
+			}).bind("keyup" + namespace, function () {
+				ele.trigger('keyup');
 			});
 		},
 
@@ -320,48 +261,37 @@
 			var self = this;
 			self._initActiveItem();
 			if (self._activeItem) {
-				self.$anthorWarp.children("label").text(self._activeItem.text());
+				self._label.text(self._activeItem.text());
 			}
 		},
 
 		_buildItem: function ($item) {
-			var val = $item.val(), text = $item.text(), self = this,
+			var val = $item.val(), text = $item.text(), self = this, $li;
+			if (text === "") {
+				text = "&nbsp;";
+			}
 			$li = $("<li class=\"wijmo-dropdown-item ui-corner-all\"><span>" +
-			text + "</span></li>")
-			.mousemove(function (event) {
-				var current = $(event.target).closest(".wijmo-dropdown-item");
-				if (current !== this.last) {
-					self._activate($(this));
-				}
-				this.last = $(event.target).closest(".wijmo-dropdown-item");
-			})
-			.bind("mouseover." + self.widgetName, function () {
-				self.element.trigger('mouseover');
-			})
-			.bind("mouseout." + self.widgetName, function () {
-				self.element.trigger('mouseout');
-			})
-			.bind("mousedown." + self.widgetName, function () {
-				self.element.trigger('mousedown');
-			})
-			.bind("mouseup." + self.widgetName, function () {
-				self.element.trigger('mouseup');
-			})
-			.attr("role", "option");
+				text + "</span></li>")
+				.mousemove(function (event) {
+					var current = $(event.target).closest(".wijmo-dropdown-item");
+					if (current !== this.last) {
+						self._activate($(this));
+					}
+					this.last = $(event.target).closest(".wijmo-dropdown-item");
+				}).attr("role", "option");
 			$li.data("value", val);
 			return $li;
 		},
 
 		_show: function () {
-			var self = this, showingAnimation = self.options.showingAnimation,
-				div = self.div;
-			div.css("z-index", "100000");
-			if ($.browser.msie && ($.browser.version === "6.0" ||
-			$.browser.version === "7.0")) {
-				div.parent().css("z-index", "99999");
+			var self = this, listContainer = self._listContainer,
+				showingAnimation = self.options.showingAnimation;
+			listContainer.css("z-index", "100000");
+			if ($.browser.msie && /^[6,7]\.[0-9]+/.test($.browser.version)) {
+				listContainer.parent().css("z-index", "99999");
 			}
 			if (showingAnimation) {
-				div.stop().show(
+				listContainer.stop().show(
 				showingAnimation.effect,
 				showingAnimation.options,
 				showingAnimation.speed,
@@ -370,20 +300,19 @@
 				});
 			}
 			else {
-				div.show();
+				listContainer.show();
 			}
 		},
 
 		_hide: function () {
-			var self = this,
-				hidingAnimation = self.options.hidingAnimation,
-				div = self.div;
+			var self = this, listContainer = self._listContainer,
+				hidingAnimation = self.options.hidingAnimation;
 
-			if (div.is(":hidden")) {
+			if (listContainer.is(":hidden")) {
 				return;
 			}
 			if (hidingAnimation) {
-				div.stop(false, true).hide(
+				listContainer.stop(false, true).hide(
 				hidingAnimation.effect,
 				hidingAnimation.options,
 				hidingAnimation.speed,
@@ -391,38 +320,38 @@
 					if ($.isFunction(hidingAnimation.callback)) {
 						hidingAnimation.callback.apply(self, arguments);
 					}
-					if ($.browser.msie && $.browser.version === "6.0" ||
-					$.browser.version === "7.0") {
-						div.parent().css("z-index", "");
+					if ($.browser.msie && /^[6,7]\.[0-9]+/.test($.browser.version)) {
+						listContainer.parent().css("z-index", "");
 					}
-					div.css("z-index", "");
+					listContainer.css("z-index", "");
 				});
 			}
 			else {
 				if ($.browser.msie && $.browser.version === "6.0") {
-					div.parent().css("z-index", "");
+					listContainer.parent().css("z-index", "");
 				}
-				div.css("z-index", "");
-				div.hide();
+				listContainer.css("z-index", "");
+				listContainer.hide();
 			}
 		},
 
 		_setValue: function () {
-			var self = this, div = self.div, top, height;
+			var self = this, listContainer = self._listContainer, top, height;
 			if (self._activeItem) {
-				self.$anthorWarp.children("label").text(self._activeItem.text());
+				self._label.text(self._activeItem.text());
 				self._value = self._activeItem.data("value");
 
 				if (self.superpanel.vNeedScrollBar) {
 					top = self._activeItem.offset().top;
 					height = self._activeItem.outerHeight();
-					if (div.offset().top > top) {
-						div.wijsuperpanel("scrollTo", 0,
-						top - self.$dropdownList.offset().top);
+					if (listContainer.offset().top > top) {
+						listContainer.wijsuperpanel("scrollTo", 0,
+						top - self._list.offset().top);
 					}
-					else if (div.offset().top < top + height - div.innerHeight()) {
-						div.wijsuperpanel("scrollTo", 0,
-						top + height - div.height() - self.$dropdownList.offset().top);
+					else if (listContainer.offset().top < top + height -
+						listContainer.innerHeight()) {
+						listContainer.wijsuperpanel("scrollTo", 0,
+						top + height - listContainer.height() - self._list.offset().top);
 					}
 				}
 			}
@@ -430,8 +359,8 @@
 
 		_initActiveItem: function () {
 			var self = this;
-			if (self._value) {
-				self.$dropdownList.find("li.wijmo-dropdown-item").each(function () {
+			if (self._value !== undefined) {
+				self._list.find("li.wijmo-dropdown-item").each(function () {
 					if ($(this).data("value") === self._value) {
 						self._activate($(this));
 					}
@@ -462,13 +391,20 @@
 			this._move("prev", "last");
 		},
 
+		nextPage: function () {
+			this._movePage("first");
+		},
+
+		previousPage: function () {
+			this._movePage("last");
+		},
+
 		_move: function (direction, edge) {
 			var self = this, $nextLi, next;
 			if (!self._activeItem) {
-				self._activate(self.$dropdownList.find(".wijmo-dropdown-item:" + edge));
+				self._activate(self._list.find(".wijmo-dropdown-item:" + edge));
 				return;
 			}
-
 			$nextLi = self._activeItem[direction]().eq(0);
 			if ($nextLi.length) {
 				next = self._getNextItem($nextLi, direction, edge);
@@ -478,11 +414,34 @@
 				.closest(".wijmo-dropdown-optgroup")[direction](),
 				direction, edge);
 			}
-
 			if (next && next.length) {
 				self._activate(next);
 			} else {
-				self._activate(self.$dropdownList.find(".wijmo-dropdown-item:" + edge));
+				self._activate(self._list.find(".wijmo-dropdown-item:" + edge));
+			}
+		},
+
+		_movePage: function (direction) {//argu: "first","last"
+			var self = this, base, height, result,
+			antiDirection = direction === "first" ? "last" : "first";
+			if (self.superpanel.vNeedScrollBar) {
+				base = self._activeItem.offset().top;
+				height = self.options.height;
+				result = self._list.find(".wijmo-dropdown-item")
+				.filter(function () {
+					var close = $(this).offset().top - base +
+					(direction === "first" ? -height : height) + $(this).height(),
+					lineheight = $(this).height();
+					return close < lineheight && close > -lineheight;
+				});
+				if (!result.length) {
+					result = self._list.find(".wijmo-dropdown-item:" +
+					antiDirection);
+				}
+				self._activate(result);
+			} else {
+				self._activate(self._list.find(".wijmo-dropdown-item:" +
+				(!self._activeItem ? direction : antiDirection)));
 			}
 		},
 
@@ -491,84 +450,13 @@
 				if (next.is(".wijmo-dropdown-optgroup")) {
 					if (!!next.find(">ul>li.wijmo-dropdown-item").length) {
 						return next.find(">ul>li.wijmo-dropdown-item:" + edge).eq(0);
-					}
-					else {
+					} else {
 						this._getNextItem(next[direction]().eq(0));
 					}
-				}
-				else {
+				} else {
 					return next;
 				}
 			}
-		},
-
-		_isFirst: function () { },
-
-		_isLast: function () { },
-
-		nextPage: function () {
-			var self = this, base, height, result;
-			if (self.superpanel.vNeedScrollBar) {
-				if (!self._activeItem || self._isLast()) {
-					self._activate(self.element.children(":first"));
-					return;
-				}
-				base = self._activeItem.offset().top;
-				height = self.options.height;
-				result = self.$dropdownList.find(".wijmo-dropdown-item")
-				.filter(function () {
-					var close = $(this).offset().top - base - height + $(this).height(),
-					lineheight = $(this).height();
-					return close < lineheight && close > -lineheight;
-				});
-				if (!result.length) {
-					result = self.$dropdownList.find(".wijmo-dropdown-item:last");
-				}
-				self._activate(result);
-			} else {
-				self._activate(self.$dropdownList.find(".wijmo-dropdown-item" +
-				(!self._activeItem || self._isLast() ? ":first" : ":last")));
-			}
-		},
-
-		previousPage: function () {
-			var self = this, base, height, result;
-			if (self.superpanel.vNeedScrollBar) {
-				if (!self._activeItem || self._isLast()) {
-					self._activate(self.element.children(":last"));
-					return;
-				}
-				base = self._activeItem.offset().top;
-				height = self.options.height;
-				result = self.$dropdownList.find(".wijmo-dropdown-item")
-				.filter(function () {
-					var close = $(this).offset().top - base + height - $(this).height(),
-					lineheight = $(this).height();
-					return close < lineheight && close > -lineheight;
-				});
-
-				if (!result.length) {
-					result = self.$dropdownList.find(".wijmo-dropdown-item:first");
-				}
-				self._activate(result);
-			} else {
-				self._activate(self.$dropdownList.find(".wijmo-dropdown-item" +
-				(!self._activeItem || self._isFirst() ? ":last" : ":first")));
-			}
-		},
-
-		_getMaxZIndex: function () {
-			var self = this, index = 100;
-			if (self.element.data("maxZIndex")) {
-				return self.element.data("maxZIndex");
-			}
-			$("*", document).each(function (i, n) {
-				if (window.parseInt($(n).css("z-index")) > index) {
-					index = window.parseInt($(n).css("z-index"));
-				}
-			});
-			self.element.data("maxZIndex", index);
-			return index;
 		},
 
 		destroy: function () {
