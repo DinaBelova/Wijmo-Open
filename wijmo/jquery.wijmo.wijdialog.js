@@ -1,7 +1,7 @@
 /*globals window,document,jQuery*/
 /*
 *
-* Wijmo Library 1.0.1
+* Wijmo Library 1.1.2
 * http://wijmo.com/
 *
 * Copyright(c) ComponentOne, LLC.  All rights reserved.
@@ -156,12 +156,14 @@
 				}
 			},
 			oCaptionButtons = o.captionButtons, uiDialogTitlebar = self.uiDialogTitlebar;
-			$.extend(buttons, oCaptionButtons);
 			uiDialogTitlebar
 			.children(".ui-dialog-titlebar-close, .wijmo-wijdialog-captionbutton")
 			.remove();
 
 			$.each(buttons, function (name, value) {
+				if (oCaptionButtons && oCaptionButtons[name]) {
+					$.extend(value, oCaptionButtons[name]);
+				}
 				captionButtons.push({ button: name, info: value });
 			});
 			self._trigger("buttoncreating", null, captionButtons);
@@ -272,9 +274,9 @@
 			self.uiDialog.height("auto");
 			if (fireEvent && animationSetting !== null) {
 				self.contentWrapper.show(
-				animationSetting.effect,
+				animationSetting.animated,
 				animationSetting.options,
-				animationSetting.speed,
+				animationSetting.duration,
 				function (e) {
 					self.uiDialog.css("height", self._toggleHeight);
 					if ($.isFunction(animationSetting.callback)) {
@@ -297,9 +299,9 @@
 			self.uiDialog.height("auto");
 			if (fireEvent && animationSetting !== null) {
 				self.contentWrapper.hide(
-				animationSetting.effect,
+				animationSetting.animated,
 				animationSetting.options,
-				animationSetting.speed);
+				animationSetting.duration);
 			}
 			else {
 				self.contentWrapper.hide();
@@ -448,7 +450,7 @@
 		},
 
 		maximize: function () {
-			var self = this, w = $(window), originalPosition, 
+			var self = this, w = $(window), originalPosition,
 			originalSize = {}, position, size = {};
 
 			if (!self.maximized) {
