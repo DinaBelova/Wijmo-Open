@@ -1,7 +1,7 @@
 /*globals jQuery*/
 /*
  *
- * Wijmo Library 1.0.1
+ * Wijmo Library 1.1.2
  * http://wijmo.com/
  *
  * Copyright(c) ComponentOne, LLC.  All rights reserved.
@@ -33,6 +33,15 @@
 		itemKey = "item.wijlist";
 	$.widget("wijmo.wijlist", {
 		options: {
+			/// <summary>
+			/// An array that specifies the listItem collections of wijlist.
+			/// Example: listItems: [{label: "label1", value: "value1"},
+			///                  {label: "label2", value: "value2"},
+			///                  {label: "label3", value: "value3"}]
+			/// Default: [].
+			/// Type: Array.
+			/// </summary>
+			listItems: [],
 			/// <summary>
 			/// Select event handler of wijlist. A function will be called 
 			/// when any item in the list is selected.
@@ -188,6 +197,13 @@
 			self.ul = $("<ul class='wijmo-wijlist-ul'></ul>").appendTo(ele);
 			if (o.disabled) {
 				self.disable();
+			}
+			if (o.listItems != null) {
+				if (o.listItems.length > 0) {
+					self.setItems(o.listItems);
+					self.renderList();
+					self.refreshSuperPanel();
+				}
 			}
 		},
 
@@ -421,8 +437,7 @@
 
 			found = $.grep(this.items, function (itm, i) {
 				itemFound = false;
-				for (var j = 0; j < values.length; j++)
-				{
+				for (var j = 0; j < values.length; j++) {
 					if (itm.value === values[j]) {
 						itemFound = true;
 					}
@@ -463,10 +478,10 @@
 			byArray = $.isArray(indices);
 			isNumber = (!byArray) && !isNaN(indices) || (byArray && !isNaN(indices[0]));
 			searchTerms = byArray ? indices : [indices];
-			foundItems = isNumber ? 
+			foundItems = isNumber ?
 			self._findItemsByIndices(searchTerms) : self._findItemsByValues(searchTerms);
 			return foundItems;
-		}, 
+		},
 
 		selectItems: function (indices, triggerSelected) {
 			/// <summary>
@@ -489,8 +504,7 @@
 
 			foundItems = self.getItems(indices);
 			if (singleMode) {
-				if (foundItems.length > 0)
-				{
+				if (foundItems.length > 0) {
 					item = foundItems[0];
 					item.selected = true;
 					item.element.addClass(selectedActive);
@@ -558,7 +572,7 @@
 			/// <summary>
 			/// Render items of wijlist.
 			/// </summary>
-			var self = this, ul = this.ul, o = this.options, items, 
+			var self = this, ul = this.ul, o = this.options, items,
 			count, singleMode, i, item;
 			ul.empty();
 			// returns if no items to render.
@@ -582,7 +596,7 @@
 
 
 		_renderItem: function (ul, item, index, singleMode) {
-			var self = this, 
+			var self = this,
 			li = $("<li role='option' class='wijmo-wijlist-item " +
 			"ui-corner-all'></li>"), label, url;
 			item.element = li;
