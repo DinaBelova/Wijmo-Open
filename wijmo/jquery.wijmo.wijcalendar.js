@@ -1,6 +1,6 @@
 /*
  *
- * Wijmo Library 1.0.1
+ * Wijmo Library 1.1.2
  * http://wijmo.com/
  *
  * Copyright(c) ComponentOne, LLC.  All rights reserved.
@@ -47,11 +47,11 @@
 			///	</summary>
 			culture: '',
 			///	<summary>
-			///		Gets or sets the number of calendar months to display in the widget. 
+			///		Gets or sets the number of calendar months in horizontal direction. 
 			///	</summary>
 			monthCols: 1,
 			///	<summary>
-			///		Gets or sets the number of calendar months to display in the widget. 
+			///		Gets or sets the number of calendar months in vertical direction. 
 			///	</summary>
 			monthRows: 1,
 			///	<summary>
@@ -113,7 +113,7 @@
 			///	</summary>
 			selectionMode: { day: true, days: true },
 			///	<summary>
-			///		Determines whether you can change the view to month/year/decade after clicking on the calendar title.
+			///		Determines whether the preview buttons are displayed.
 			///	</summary>
 			allowPreview: false,
 			///	<summary>
@@ -179,8 +179,8 @@
 			///	</summary>
 			autoHide: true,
 			/// <summary>
-			/// Function used for customizing the content, style and attributes of a day cell.
-			/// Default: undefined.
+			/// A callback function used for customizing the content, style and attributes of a day cell.
+			/// Default: null.
 			/// Type: Function.
 			/// Code example: $("#element").wijcalendar({ customizeDate: function($daycell, date, dayType, hover, preview){ } });
 			/// </summary>
@@ -190,7 +190,71 @@
 			/// <param name="hover" type="Boolean">Whether mouse is over the day cell.</param>
 			/// <param name="preview" type="Object">Whether rendering in preview container.</param>
 			/// <returns type="Boolean">True if day cell content has been changed and default cell content will not be applied.</returns>
-			customizeDate: undefined
+			customizeDate: null,
+			/// <summary>
+			/// A callback function used to customizing the title text on month view.
+			/// Default: null.
+			/// Type: Function.
+			/// Code example: $("#element").wijcalendar({ title: function (date, format) { } });
+			/// </summary>
+			///
+			/// <param name="date" type="Date">The display date of the month.</param>
+			/// <param name="format" type="String">The title format. Determined by the options.titleFormat.</param>
+			/// <returns type="String">The customized title text.</returns>
+			title: null,
+			/// <summary>
+			/// The beforeSlide event handler. A function called before the calendar view slides to another month. Cancellable.
+			/// Default: null.
+			/// Type: Function.
+			/// Code example: $("#element").wijcalendar({ beforeSlide: function () { } });
+			/// </summary>
+			beforeSlide: null,
+			/// <summary>
+			/// The afterSlide event handler. A function called after the calendar view slided to another month.
+			/// Default: null.
+			/// Type: Function.
+			/// Code example: $("#element").wijcalendar({ afterSlide: function () { } });
+			/// </summary>
+			afterSlide: null,
+			/// <summary>
+			/// The beforeSelect event handler. A function called before user selects a day by mouse. Cancellable.
+			/// Default: null.
+			/// Type: Function.
+			/// Code example: $("#element").wijcalendar({ beforeSelect: function (e, args) { } });
+			/// </summary>
+			///
+			/// <param name="e" type="EventObj">EventObj that relates to this event.</param>
+			/// <param name="args" type="Object">
+			/// The data with this event.
+			/// args.date: The date to be selected.
+			///</param>
+			beforeSelect: null,
+			/// <summary>
+			/// The afterSelect event handler. A function called after user selects a day by mouse.
+			/// Default: null.
+			/// Type: Function.
+			/// Code example: $("#element").wijcalendar({ afterSelect: function (e, args) { } });
+			/// </summary>
+			///
+			/// <param name="e" type="EventObj">EventObj that relates to this event.</param>
+			/// <param name="args" type="Object">
+			/// The data with this event.
+			/// args.date: The selected date.
+			///</param>
+			afterSelect: null,
+			/// <summary>
+			/// The selectedDatesChanged event handler. A function called after the selectedDates collection changed.
+			/// Default: null.
+			/// Type: Function.
+			/// Code example: $("#element").wijcalendar({ selectedDatesChanged: function (e, args) { } });
+			/// </summary>
+			///
+			/// <param name="e" type="EventObj">EventObj that relates to this event.</param>
+			/// <param name="args" type="Object">
+			/// The data with this event.
+			/// args.dates: The array with all selected date object.
+			///</param>
+			selectedDatesChanged: null
 		},
 
 		_create: function () {
@@ -371,9 +435,7 @@
 				this.options.displayDate = date;
 			}
 			else {
-				var data = {};
-				this._trigger('beforeSlide', null, data);
-				if (data.cancel) { return; }
+				if (this._trigger('beforeSlide') === false) { return; }
 
 				if (this._isSingleMonth()) {
 					this._playSlideAnimation(date);
@@ -442,9 +504,8 @@
 			if (date === undefined) { return; }
 			if (!o.selectionMode.day) { return; }
 
-			var data = { date: date };
-			this._trigger("beforeSelect", null, data);
-			if (data.cancel) { return; }
+			var args = { date: date };
+			if (this._trigger("beforeSelect", null, args) === false) { return; }
 
 			if (!o.selectionMode.days || (!e.metaKey && !e.shiftKey)) { this.unSelectAll(); }
 
@@ -456,7 +517,7 @@
 				this.selectDate(date);
 			}
 
-			this._trigger('afterSelect', null, data);
+			this._trigger('afterSelect', null, args);
 			this._trigger('selectedDatesChanged', null, { dates: [date] });
 
 			if (!!o.selectionMode.days) {
@@ -1568,10 +1629,13 @@
 				return this._myGrid.getTitle();
 			} else {
 				var d = monthDate || this.getDisplayDate(),
-					f = this.options.titleFormat || 'MMMM yyyy',
-					data = { date: d, format: f, title: this._formatDate(f, d) };
-				this._trigger('title', null, data);
-				return data.title;
+					f = this.options.titleFormat || 'MMMM yyyy';
+
+				if ($.isFunction(this.options.title)) {
+					return this.options.title(d, f) || this._formatDate(f, d);
+				}
+
+				return this._formatDate(f, d);
 			}
 		},
 
@@ -1889,7 +1953,7 @@
 						var fullTxt = this._getWeekDayText(dayOfWeek, "full");
 						hw.writeBeginTag('th');
 						hw.writeAttribute('id', this.id + '_cs_' + colIndex);
-						hw.writeAttribute('class', (weekEnd ? 'ui-datepicker-week-end' : 'ui-datepicker-week-day') + (!!o.selectionMode.weekDay ? ' wijmo-wijcalendar-selectable' : ''));
+						hw.writeAttribute('class', 'ui-datepicker-week-day' + (weekEnd ? ' ui-datepicker-week-end' : '') + (!!o.selectionMode.weekDay ? ' wijmo-wijcalendar-selectable' : ''));
 						hw.writeAttribute('role', 'columnheader');
 						hw.writeTagRightChar();
 
@@ -1915,9 +1979,6 @@
 					hw.writeTagRightChar();
 					if (o.showWeekNumbers) {
 						var rowIndex = i + ((o.showWeekDays) ? 1 : 0);
-						if (!this.calendar._isSingleMonth()) {
-							rowIndex++;
-						}
 						hw.writeBeginTag('td');
 						hw.writeAttribute('id', this.id + '_rs_' + rowIndex);
 						hw.writeAttribute('class', 'ui-datepicker-week-col wijmo-wijcalendar-week-num' + (!!o.selectionMode.weekNumber ? ' wijmo-wijcalendar-selectable' : ''));
