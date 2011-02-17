@@ -1,6 +1,6 @@
 /*
  *
- * Wijmo Library 1.0.1
+ * Wijmo Library 1.1.2
  * http://wijmo.com/
  *
  * Copyright(c) ComponentOne, LLC.  All rights reserved.
@@ -129,6 +129,63 @@
 		}
 
 		return null;
+	};
+
+	$.fn.wijshow = function (animation, customAnimations, customAnimationOptions, showing, shown) {
+		var animated = animation.animated || false,
+			duration = animation.duration || 400,
+			easing = animation.easing,
+			option = animation.option || {};
+
+		if (showing && $.isFunction(showing)) {
+			showing.call(this);
+		}
+
+		if (animated) {
+			if ($.effects && $.effects[animated]) {
+				this.show(animated, $.extend(option, { easing: easing }), duration, shown);
+				return;
+			}
+
+			if (customAnimations && customAnimations[animated]) {
+				customAnimations[animated](animation, $.extend(customAnimationOptions, { complete: shown }));
+				return;
+			}
+		}
+
+		this.show();
+		if (shown && $.isFunction(shown)) {
+			shown.call(this);
+		}
+	};
+
+	$.fn.wijhide = function (animation, customAnimations, customAnimationOptions, hidding, hidden) {
+		var animated = animation.animated || false,
+			duration = animation.duration || 400,
+			easing = animation.easing,
+			option = animation.option || {};
+
+		if (hidding && $.isFunction(hidding)) {
+			hidding.call(this);
+		}
+
+		if (animated) {
+			if ($.effects && $.effects[animated]) {
+				this.hide(animated, $.extend(option,
+				{ easing: easing }), duration, hidden);
+				return;
+			}
+			if (customAnimations && customAnimations[animated]) {
+				customAnimations[animated](newAnimations,
+					$.extend(customAnimationOptions, { complete: hidden }));
+				return;
+			}
+		}
+
+		this.hide();
+		if (hidden && $.isFunction(hidden)) {
+			hidden.call(this);
+		}
 	};
 
 	var wijCharValidator = function () { };
