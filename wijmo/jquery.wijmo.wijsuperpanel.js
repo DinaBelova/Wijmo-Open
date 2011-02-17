@@ -1,7 +1,7 @@
 /*globals window document jQuery */
 /*
  *
- * Wijmo Library 1.0.1
+ * Wijmo Library 1.1.2
  * http://wijmo.com/
  *
  * Copyright(c) ComponentOne, LLC.  All rights reserved.
@@ -667,6 +667,10 @@
 
 		_hasMode: function (scroller, mode) {
 			var modes = scroller.scrollMode.split(",");
+			modes = $.map(modes, function (n) {
+				return $.trim(n);
+			});
+
 			return $.inArray(mode, modes) > -1;
 		},
 
