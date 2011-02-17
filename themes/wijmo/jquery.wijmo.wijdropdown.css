@@ -5,8 +5,11 @@
     width: auto;
     zoom: 1;
     *display: inline;
+    width:200px;
     /*z-index: 101;*/
 }
+
+
 
 
 .wijmo-wijdropdown div.wijmo-dropdown-trigger
@@ -38,7 +41,7 @@
 
 .wijmo-wijdropdown .wijmo-dropdown
 {
-    position: absolute;
+    position: absolute; height:250px;
 }
 
 .wijmo-wijdropdown .wijmo-dropdown .wijmo-dropdown-list

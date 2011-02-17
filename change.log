@@ -1,3 +1,47 @@
+Wijmo-Open v1.1.2
+=================
+
+** Breaking changes
+
+   Menu - The options that govern the use of animation have been refactored.  If your using custom animation be aware of the following changes.
+		The following options were removed:
+			* animated
+			* showAnimated
+			* hideAnimated
+			* duration
+			* showDuration
+			* hideDuration
+		  The following options were added:
+			* animation
+			* showAnimation
+			* hideAnimation
+			* slidingAnimation
+
+	Splitter - The resizeSettings options has changed.  the following options were removed:
+				* duration
+				* easing
+				* disabled
+			   The following options were added to resizeSettings option:
+				* animationOptions
+
+SuperPanel
+----------
+Add trim method to trim the items which are splitted from the scrollMode.  Fix the issue that selectMode is set to
+"scrollBar, buttons", the navigation buttons can't be shown on the superpanel.
+
+Menu
+-------
+In sliding menu, change the 'wij-menu-breadcrumb' element's class from 'ui-widget-default' to 'ui-state-default'.
+Use the default jQuery UI's effect when displaying/hiding a submenu. 
+
+Tooltip
+--------
+Fixed bug: Modify the misspelled word "hidding".
+Added ajaxCallback option to allow the contents of the tooltip to be set dynamically.
+Add animation option. if showAnimation or hideAnimation is not sepecified, use this option's value.
+Added a group option.  Prior versions created a unique tooltip dom element for each element in the matched set. We now create one tooltip element for each group.  
+
+
 Wijmo-Open v1.0.1
 =============================
 
