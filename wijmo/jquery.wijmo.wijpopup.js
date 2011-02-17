@@ -1,6 +1,6 @@
 /*
  *
- * Wijmo Library 1.0.1
+ * Wijmo Library 1.1.2
  * http://wijmo.com/
  *
  * Copyright(c) ComponentOne, LLC.  All rights reserved.
@@ -85,7 +85,42 @@
 			position:{
 				at: 'left bottom',
 				my: 'left top'
-			}
+			},
+			/// <summary>
+			/// The showing event handler. A function called before the element is shown. Cancellable.
+			/// Default: null.
+			/// Type: Function.
+			/// Code example: $("#element").wijpopup({ showing: function (e, args) { } });
+			/// </summary>
+			showing: null,
+			/// <summary>
+			/// The shown event handler. A function called after the element is shown.
+			/// Default: null.
+			/// Type: Function.
+			/// Code example: $("#element").wijpopup({ shown: function () { } });
+			/// </summary>
+			shown: null,
+			/// <summary>
+			/// The hidding event handler. A function called before the element is hidden. Cancellable.
+			/// Default: null.
+			/// Type: Function.
+			/// Code example: $("#element").wijpopup({ hidding: function (e, args) { } });
+			/// </summary>
+			hidding: null,
+			/// <summary>
+			/// The hidden event handler. A function called after the element is hidden.
+			/// Default: null.
+			/// Type: Function.
+			/// Code example: $("#element").wijpopup({ hidden: function () { } });
+			/// </summary>
+			hidden: null,
+			/// <summary>
+			/// The posChanged event handler. A function called when the position of the element is changed.
+			/// Default: null.
+			/// Type: Function.
+			/// Code example: $("#element").wijpopup({ posChanged: function () { } });
+			/// </summary>
+			posChanged: null
 		},
 
 		_create: function () {
@@ -146,9 +181,7 @@
 			this._setPosition(position);
 			if (this.isVisible()) { return; }
 			
-			var data = {cancel: false};
-			this._trigger('showing', null, data);
-			if (data.cancel) { return; }
+			if (this._trigger('showing') === false) { return; }
 
 			if (this.options.autoHide) {
 				$(document.body).bind('mouseup.wijpopup', $.proxy(this._onDocMouseUp, this));
@@ -191,9 +224,7 @@
 			/// <summary>Hides the element.</summary>
 			if (!this.isVisible()) { return; }
 			
-			var data = {cancel: false};
-			this._trigger('hidding', null, data);
-			if (data.cancel) { return; }
+			if (this._trigger('hidding') === false) { return; }
 
 			$(document.body).unbind('mouseup.wijpopup');
 			var effect = this.options.hideEffect || "hide";
